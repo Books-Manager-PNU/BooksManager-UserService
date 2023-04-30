@@ -18,12 +18,12 @@ import java.util.Collections;
 @Setter
 @ToString
 @NoArgsConstructor
-@Table(name = "users", schema = "public")
+@Table(name = "_user", schema = "public")
 public class User implements UserDetails {
 
     @Id
+    @GeneratedValue
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "username", nullable = false, unique = true)

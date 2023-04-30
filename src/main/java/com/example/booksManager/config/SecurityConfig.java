@@ -1,45 +1,42 @@
 package com.example.booksManager.config;
 
-import com.example.booksManager.security.JWTFilter;
+import com.example.booksManager.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
 
-@RequiredArgsConstructor
-@EnableMethodSecurity
 @Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final JWTFilter jwtFilter;
+    private final JwtAuthFilter jwtAuthFilter;
+    private final AuthenticationProvider authenticationProvider;
 
     private static final String[] PUBLIC_MATCHERS = {
-            "/",
-            "/user"
+            "/api/auth/**"
     };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .cors().and()
                 .csrf().disable()
                 .authorizeHttpRequests()
                 .requestMatchers(PUBLIC_MATCHERS).permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                .httpBasic(withDefaults())
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-    }
-
-    @Bean
-    protected PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
     }
 }
