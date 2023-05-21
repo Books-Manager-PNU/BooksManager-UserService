@@ -1,3 +1,6 @@
+server:
+  port: 8084
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5444/books_manager_user_db
